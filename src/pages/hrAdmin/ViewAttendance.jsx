@@ -503,6 +503,10 @@ const ViewAttendance = () => {
                   <span className="font-medium text-zinc-900">Checked-Out</span>{" "}
                   : {entry.checkOut || "--"}
                 </p>
+                <p className="text-sm text-gray-500 mt-4">
+                  <span className="font-medium text-zinc-900">Date</span> :{" "}
+                  {new Date(entry.date).toLocaleDateString()}
+                </p>
               </div>
             ))
           )}

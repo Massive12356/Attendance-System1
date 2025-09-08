@@ -32,7 +32,34 @@ const Login = () => {
     if (user.attendee?.role === "admin") {
       localStorage.setItem("userId", user.attendee._id);
       toast.success("Login successful! Redirecting...", { id: toastId });
-      navigate("/insight-center");
+      
+      
+      const fullName = user?.attendee?.fullName || "Guest";
+      const firstName = fullName.split(" ")[0];
+
+      // Cancel any queued speech
+      window.speechSynthesis.cancel();
+
+      // Create message
+      const message = new SpeechSynthesisUtterance(`Welcome ${firstName}`);
+      message.lang = "en-US";
+      message.rate = 1;
+      message.pitch = 1;
+
+      // Debug log
+      console.log("Speaking:", message.text);
+
+      // Speak
+      window.speechSynthesis.speak(message);
+
+      // Optional: log available voices
+      message.onstart = () => console.log("Speech started");
+      message.onend = () => console.log("Speech ended");
+      message.onerror = (err) => console.error("Speech error:", err);
+
+         setTimeout(() => {
+           navigate("/insight-center");
+         }, 300);
     } else {
       toast.error("You do not have access to this page.", { id: toastId });
     }

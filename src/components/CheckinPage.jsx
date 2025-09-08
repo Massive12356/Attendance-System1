@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import Webcam from "react-webcam";
 import Loading from "./Loading";
 import useAttendanceStore from "../../store/useAttendanceStore";
+import useLoginStore from "../../store/useLoginStore.js"
 import { MdCallEnd } from "react-icons/md";
 import { FiCamera } from "react-icons/fi";
 import { FaArrowLeft } from "react-icons/fa";
@@ -19,6 +20,8 @@ const CheckinPage = () => {
   const [isCapturing, setIsCapturing] = useState(false);
   const [cameraError, setCameraError] = useState(null);
   const navigate = useNavigate();
+
+  const {user} = useLoginStore();
 
   const videoConstraints = {
     width: 1280,
@@ -114,7 +117,33 @@ const CheckinPage = () => {
 
       await checkInAttendance(formData);
       toast.success("Checked-In successfully");
-      navigate("/");
+
+         const fullName = user?.attendee?.fullName || "Guest";
+         const firstName = fullName.split(" ")[0];
+
+         // Cancel any queued speech
+         window.speechSynthesis.cancel();
+
+         // Create message
+         const message = new SpeechSynthesisUtterance(`Welcome ${firstName}`);
+         message.lang = "en-US";
+         message.rate = 1;
+         message.pitch = 1;
+
+         // Debug log
+         console.log("Speaking:", message.text);
+
+         // Speak
+         window.speechSynthesis.speak(message);
+
+         // Optional: log available voices
+         message.onstart = () => console.log("Speech started");
+         message.onend = () => console.log("Speech ended");
+         message.onerror = (err) => console.error("Speech error:", err);
+
+         setTimeout(()=>{
+          navigate("/insight-center")
+         },300)
     } catch (err) {
       console.error("Capture/Submit failed:", err);
       toast.error(err.message || "Error checking in");
