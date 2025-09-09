@@ -118,28 +118,28 @@ const CheckinPage = () => {
       await checkInAttendance(formData);
       toast.success("Checked-In successfully");
 
-         const fullName = user?.attendee?.fullName || "Guest";
-         const firstName = fullName.split(" ")[0];
+        //  const fullName = user?.attendee?.fullName || "Guest";
+        //  const firstName = fullName.split(" ")[0];
 
-         // Cancel any queued speech
-         window.speechSynthesis.cancel();
+        //  // Cancel any queued speech
+        //  window.speechSynthesis.cancel();
 
-         // Create message
-         const message = new SpeechSynthesisUtterance(`Welcome ${firstName}`);
-         message.lang = "en-US";
-         message.rate = 1;
-         message.pitch = 1;
+        //  // Create message
+        //  const message = new SpeechSynthesisUtterance(`Welcome ${firstName}`);
+        //  message.lang = "en-US";
+        //  message.rate = 1;
+        //  message.pitch = 1;
 
-         // Debug log
-         console.log("Speaking:", message.text);
+        //  // Debug log
+        //  console.log("Speaking:", message.text);
 
-         // Speak
-         window.speechSynthesis.speak(message);
+        //  // Speak
+        //  window.speechSynthesis.speak(message);
 
-         // Optional: log available voices
-         message.onstart = () => console.log("Speech started");
-         message.onend = () => console.log("Speech ended");
-         message.onerror = (err) => console.error("Speech error:", err);
+        //  // Optional: log available voices
+        //  message.onstart = () => console.log("Speech started");
+        //  message.onend = () => console.log("Speech ended");
+        //  message.onerror = (err) => console.error("Speech error:", err);
 
          setTimeout(()=>{
           navigate("/")
