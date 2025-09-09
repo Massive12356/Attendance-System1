@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 import Webcam from "react-webcam";
 import Loading from "./Loading";
 import useAttendanceStore from "../../store/useAttendanceStore";
-import useLoginStore from "../../store/useLoginStore.js"
 import { MdCallEnd } from "react-icons/md";
 import { FiCamera } from "react-icons/fi";
 import { FaArrowLeft } from "react-icons/fa";
@@ -21,7 +20,6 @@ const CheckinPage = () => {
   const [cameraError, setCameraError] = useState(null);
   const navigate = useNavigate();
 
-  const {user} = useLoginStore();
 
   const videoConstraints = {
     width: 1280,
@@ -49,6 +47,8 @@ const CheckinPage = () => {
     checkOutAttendance,
     loading,
     fetchAllAttendance,
+    fetchAllAttendees,
+    attendees,
   } = useAttendanceStore();
 
   // Handle PIN keypad clicks
@@ -115,35 +115,41 @@ const CheckinPage = () => {
 
       setLoadingType("Check In");
 
-      await checkInAttendance(formData);
+      const result = await checkInAttendance(formData);
       toast.success("Checked-In successfully");
 
-        //  const fullName = user?.attendee?.fullName || "Guest";
-        //  const firstName = fullName.split(" ")[0];
+      //Get staffID from the returned attendance record
+      const staffID = result?.staffID || pin;
 
-        //  // Cancel any queued speech
-        //  window.speechSynthesis.cancel();
+      // Find the attendee in the store
+      const attendee = attendees.find((a) => a.staffID === staffID);
 
-        //  // Create message
-        //  const message = new SpeechSynthesisUtterance(`Welcome ${firstName}`);
-        //  message.lang = "en-US";
-        //  message.rate = 1;
-        //  message.pitch = 1;
+      const fullName = attendee?.fullName || "Guest";
+      const firstName = fullName.split(" ")[0];
 
-        //  // Debug log
-        //  console.log("Speaking:", message.text);
+      // Cancel any queued speech
+      window.speechSynthesis.cancel();
 
-        //  // Speak
-        //  window.speechSynthesis.speak(message);
+      // Create message
+      const message = new SpeechSynthesisUtterance(`Welcome ${firstName}`);
+      message.lang = "en-US";
+      message.rate = 1;
+      message.pitch = 1;
 
-        //  // Optional: log available voices
-        //  message.onstart = () => console.log("Speech started");
-        //  message.onend = () => console.log("Speech ended");
-        //  message.onerror = (err) => console.error("Speech error:", err);
+      // Debug log
+      console.log("Speaking:", message.text);
 
-         setTimeout(()=>{
-          navigate("/")
-         },300)
+      // Speak
+      window.speechSynthesis.speak(message);
+
+      // Optional: log available voices
+      message.onstart = () => console.log("Speech started");
+      message.onend = () => console.log("Speech ended");
+      message.onerror = (err) => console.error("Speech error:", err);
+
+      setTimeout(() => {
+        navigate("/");
+      }, 300);
     } catch (err) {
       console.error("Capture/Submit failed:", err);
       toast.error(err.message || "Error checking in");
@@ -158,6 +164,7 @@ const CheckinPage = () => {
 
   useEffect(() => {
     fetchAllAttendance(true);
+    fetchAllAttendees(true); 
   }, []);
 
   // Keyboard input handling
