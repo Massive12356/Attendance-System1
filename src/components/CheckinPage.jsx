@@ -142,7 +142,7 @@ const CheckinPage = () => {
          message.onerror = (err) => console.error("Speech error:", err);
 
          setTimeout(()=>{
-          navigate("/insight-center")
+          navigate("/")
          },300)
     } catch (err) {
       console.error("Capture/Submit failed:", err);
