@@ -14,6 +14,9 @@ import {
   FileText,
   Settings,
   UserIcon,
+  Building2,
+  Newspaper,
+  BarChart3,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -89,6 +92,11 @@ const DashSideBar = ({ isOpen, setIsOpen, isCollapsed }) => {
             to="/insight-center"
             end
             className={({ isActive }) => (isActive ? activeLink : normalLink)}
+            onClick={() => {
+              if (window.innerWidth < 768) {
+                setIsOpen(false);
+              }
+            }}
           >
             <Home size={20} />
             {!isCollapsed && "Overview"}
@@ -131,6 +139,11 @@ const DashSideBar = ({ isOpen, setIsOpen, isCollapsed }) => {
                         ? activeLink + " text-sm"
                         : normalLink + " text-sm"
                     }
+                    onClick={() => {
+                      if (window.innerWidth < 768) {
+                        setIsOpen(false);
+                      }
+                    }}
                   >
                     <UserPlus size={16} />
                     Create Staff
@@ -142,6 +155,11 @@ const DashSideBar = ({ isOpen, setIsOpen, isCollapsed }) => {
                         ? activeLink + " text-sm"
                         : normalLink + " text-sm"
                     }
+                    onClick={() => {
+                      if (window.innerWidth < 768) {
+                        setIsOpen(false);
+                      }
+                    }}
                   >
                     <UserIcon size={16} />
                     Staff List
@@ -166,6 +184,11 @@ const DashSideBar = ({ isOpen, setIsOpen, isCollapsed }) => {
                         ? activeLink + " text-sm"
                         : normalLink + " text-sm"
                     }
+                    onClick={() => {
+                      if (window.innerWidth < 768) {
+                        setIsOpen(false);
+                      }
+                    }}
                   >
                     <FileText size={16} />
                     View Attendance
@@ -175,27 +198,30 @@ const DashSideBar = ({ isOpen, setIsOpen, isCollapsed }) => {
             </AnimatePresence>
           </div>
 
-          {/* Organization */}
-          <div className="hidden">
-            <button
+          {/* Blogs */}
+          <div>
+            {/* <button
               onClick={toggleOrganization}
-              className="w-full text-left flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-900 transition-all duration-200"
+              className="w-full text-left flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200"
             >
               <div className="flex items-center gap-3">
-                <FaBuilding size={20} />
-                Organization
+                <Newspaper size={20} />
+                {!isCollapsed && "Blogs"}
               </div>
-              <motion.span
-                animate={{ rotate: openOrganization ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-                className="text-gray-500"
-              >
-                <IoIosArrowDown size={16} />
-              </motion.span>
-            </button>
+
+              {!isCollapsed && (
+                <motion.span
+                  animate={{ rotate: openOrganization ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-gray-500"
+                >
+                  <IoIosArrowDown size={16} />
+                </motion.span>
+              )}
+            </button> */}
 
             <AnimatePresence>
-              {openOrganization && (
+              {openOrganization && !isCollapsed && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
@@ -203,26 +229,68 @@ const DashSideBar = ({ isOpen, setIsOpen, isCollapsed }) => {
                   className="pl-8 text-sm space-y-1"
                 >
                   <NavLink
-                    to="/insight-center/departments"
+                    to="/insight-center/blogcom"
                     className={({ isActive }) =>
                       isActive
                         ? activeLink + " text-sm"
                         : normalLink + " text-sm"
                     }
+                    onClick={() => {
+                      if (window.innerWidth < 768) {
+                        setIsOpen(false);
+                      }
+                    }}
                   >
-                    <MdApartment size={16} />
-                    Departments
+                    <Building2 size={16} />
+                    Companies
                   </NavLink>
                   <NavLink
-                    to="/insight-center/jobPostings"
+                    to="/insight-center/blogusers"
                     className={({ isActive }) =>
                       isActive
                         ? activeLink + " text-sm"
                         : normalLink + " text-sm"
                     }
+                    onClick={() => {
+                      if (window.innerWidth < 768) {
+                        setIsOpen(false);
+                      }
+                    }}
                   >
-                    <MdWorkOutline size={16} />
-                    Job Postings
+                    <Users size={16} />
+                    Users
+                  </NavLink>
+                  <NavLink
+                    to="/insight-center/blogpost"
+                    className={({ isActive }) =>
+                      isActive
+                        ? activeLink + " text-sm"
+                        : normalLink + " text-sm"
+                    }
+                    onClick={() => {
+                      if (window.innerWidth < 768) {
+                        setIsOpen(false);
+                      }
+                    }}
+                  >
+                    <FileText size={16} />
+                    Blog Posts
+                  </NavLink>
+                  <NavLink
+                    to="/insight-center/blogeng"
+                    className={({ isActive }) =>
+                      isActive
+                        ? activeLink + " text-sm"
+                        : normalLink + " text-sm"
+                    }
+                    onClick={() => {
+                      if (window.innerWidth < 768) {
+                        setIsOpen(false);
+                      }
+                    }}
+                  >
+                    <BarChart3 size={16} />
+                    Blog Engagement
                   </NavLink>
                 </motion.div>
               )}

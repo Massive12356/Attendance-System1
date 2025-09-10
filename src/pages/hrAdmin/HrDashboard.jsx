@@ -6,13 +6,13 @@ import {
   TrendingDown,
   FileText,
   Info,
+  Bot,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import useAttendanceStore from "../../../store/useAttendanceStore";
-import { useMemo, useState } from "react";
-
-
+import { useMemo, useState,useEffect } from "react";
+import client from "../../lib/openai";
 
 // ================== TOOLTIP COMPONENTS ==================
 const Tooltip = ({ text, visible }) => (
@@ -43,10 +43,6 @@ const InfoTooltip = ({ text }) => {
 };
 // ================== END TOOLTIP COMPONENTS ==================
 
-
-
-
-
 const HrDashboard = () => {
   // ✅ Get data from Zustand store
   const { attendances, todayAttendance, attendees, loading } =
@@ -54,6 +50,10 @@ const HrDashboard = () => {
 
   // ✅ Assuming you also have a staff list length (or fetchAllAttendees)
   const totalStaff = attendees.length; // replace with your staff API count later
+
+  // Hold Ai insights
+  const [aiInsight, setAiInsight] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
 
   // ✅ Calculate today's stats
   const todayStats = useMemo(() => {
@@ -181,35 +181,67 @@ const HrDashboard = () => {
     return `${days} day${days > 1 ? "s" : ""} ago`;
   };
 
+  const recentActivities = useMemo(() => {
+    if (!Array.isArray(todayAttendance)) return [];
 
-const recentActivities = useMemo(() => {
-  if (!Array.isArray(todayAttendance)) return [];
+    return todayAttendance
+      .map((r) => {
+        const ts = getRecordTimestamp(r);
+        const { text, dot } = statusMeta(r?.status);
 
-  return todayAttendance
-    .map((r) => {
-      const ts = getRecordTimestamp(r);
-      const { text, dot } = statusMeta(r?.status);
+        // ✅ staff lookup
+        const staff = attendees.find(
+          (a) => a.staffID === r.staffID || a.ID === r.ID || a.id === r.id
+        );
 
-      // ✅ staff lookup
-      const staff = attendees.find(
-        (a) => a.staffID === r.staffID || a.ID === r.ID || a.id === r.id
-      );
+        return {
+          id: r?.id || r?.staffID || r?.ID,
+          name: resolveStaffName(r?.staffID || r?.ID),
+          label: text,
+          dotClass: dot,
+          ts,
+          // ✅ include images safely
+          image: Array.isArray(r.images) ? r.images : [],
+          position: staff?.position || r.position || "N/A", // optional
+        };
+      })
+      .sort((a, b) => b.ts - a.ts) // latest first
+      .slice(0, 10); // show the latest N items
+  }, [todayAttendance, attendees]);
 
-      return {
-        id: r?.id || r?.staffID || r?.ID,
-        name: resolveStaffName(r?.staffID || r?.ID),
-        label: text,
-        dotClass: dot,
-        ts,
-        // ✅ include images safely
-        image: Array.isArray(r.images) ? r.images : [],
-        position: staff?.position || r.position || "N/A", // optional
-      };
-    })
-    .sort((a, b) => b.ts - a.ts) // latest first
-    .slice(0, 10); // show the latest N items
-}, [todayAttendance, attendees]);
+  // Ai insights
+  useEffect(() => {
+    if (!todayAttendance || todayAttendance.length === 0) return;
 
+    const fetchAIInsights = async () => {
+      setAiLoading(true);
+      try {
+        const present = todayStats.present;
+        const absent = todayStats.absent;
+        const late = todayStats.late;
+
+        const prompt = `Give 3 short bullet-point insights about today's staff attendance. 
+      - Present: ${present} 
+      - Absent: ${absent} 
+      - Late: ${late}.
+      Make it professional and concise for a manager dashboard.`;
+
+        const response = await client.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "user", content: prompt }],
+        });
+
+        setAiInsight(response.choices[0].message.content);
+      } catch (err) {
+        console.error("AI Error:", err);
+        setAiInsight("AI insights could not be generated right now.");
+      } finally {
+        setAiLoading(false);
+      }
+    };
+
+    fetchAIInsights();
+  }, [todayAttendance, todayStats]);
 
   return (
     <div className="space-y-7">
@@ -359,6 +391,45 @@ const recentActivities = useMemo(() => {
             <UserCheck className="w-6 h-6 text-yellow-700" />
           </div>
         </div>
+      </div>
+
+      {/* AI Insights Card */}
+      <div
+        className="relative flex flex-col w-[100%] rounded-2xl p-5 space-y-3 
+  bg-gradient-to-r from-indigo-400 via-blue-400 to-purple-400 
+  text-white shadow-md border border-indigo-300"
+      >
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium flex items-center gap-1">
+            AI Insights
+            <InfoTooltip text="AI-generated insights and recommendations based on attendance trends." />
+          </p>
+
+          {/* Pulsing AI Icon */}
+          <motion.div
+            animate={{ scale: [1, 1.15, 1] }}
+            transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+            className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shadow-lg"
+          >
+            <Bot className="w-6 h-6 text-white drop-shadow-md" />
+          </motion.div>
+        </div>
+
+        {aiLoading ? (
+          <p className="text-sm italic">Generating AI insights...</p>
+        ) : (
+          <div className="text-sm space-y-2">
+            {/* Render AI text as bullet points */}
+            {aiInsight
+              .split("\n")
+              .filter(Boolean)
+              .map((line, idx) => (
+                <p key={idx} className="leading-snug">
+                  • {line.replace(/^[-*•]\s*/, "")}
+                </p>
+              ))}
+          </div>
+        )}
       </div>
 
       {/* quick links & Recent Activity */}

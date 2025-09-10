@@ -59,7 +59,7 @@ const Login = () => {
 
          setTimeout(() => {
            navigate("/insight-center");
-         }, 300);
+         }, 200);
     } else {
       toast.error("You do not have access to this page.", { id: toastId });
     }

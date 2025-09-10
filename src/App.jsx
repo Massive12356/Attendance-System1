@@ -21,6 +21,10 @@ const AttendanceListPage = lazy(()=>import('./pages/hrAdmin/AttendanceListPage')
 const Attendance = lazy(()=>import('./pages/hrAdmin/Attendance'))
 const CreateStaff = lazy(()=>import('./pages/hrAdmin/CreateStaff'))
 const ViewAttendance = lazy(()=>import('./pages/hrAdmin/ViewAttendance'));
+const BlogCompanies = lazy(()=> import('./pages/hrAdmin/BlogCompanies'));
+const BlogEngagements =lazy(()=>import('./pages/hrAdmin/BlogEngagements'));
+const BlogPosts =lazy(()=>import('./pages/hrAdmin/BlogPosts.jsx'));
+const BlogUsers = lazy(()=>import('./pages/hrAdmin/BlogUsers.jsx'))
 
 function App() {
 
@@ -98,6 +102,10 @@ function App() {
               <Route path='attend' element={<Attendance/>}/>
               <Route path='create' element={<CreateStaff/>}/>
               <Route path='view' element={<ViewAttendance/>}/>
+              <Route path='blogcom' element={<BlogCompanies/>} />
+              <Route path='blogeng' element={<BlogEngagements/>} />
+              <Route path='blogpost' element={<BlogPosts/>} />
+              <Route path='blogusers' element={<BlogUsers/>} />
             </Route>
           </Routes>
         </Suspense>

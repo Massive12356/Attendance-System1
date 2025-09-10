@@ -149,7 +149,7 @@ const CheckinPage = () => {
 
       setTimeout(() => {
         navigate("/");
-      }, 300);
+      }, 200);
     } catch (err) {
       console.error("Capture/Submit failed:", err);
       toast.error(err.message || "Error checking in");
